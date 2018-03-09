@@ -1,4 +1,4 @@
-MSSubClass: Identifies the type of dwelling involved in the sale.	
+MSSubClass: Identifies the type of dwelling involved in the sale.	(useful)
 
         20	1-STORY 1946 & NEWER ALL STYLES
         30	1-STORY 1945 & OLDER
@@ -17,7 +17,7 @@ MSSubClass: Identifies the type of dwelling involved in the sale.
        180	PUD - MULTILEVEL - INCL SPLIT LEV/FOYER
        190	2 FAMILY CONVERSION - ALL STYLES AND AGES
 
-MSZoning: Identifies the general zoning classification of the sale.
+MSZoning: Identifies the general zoning classification of the sale. (useful)
 		
        A	Agriculture
        C	Commercial
@@ -32,39 +32,39 @@ LotFrontage: Linear feet of street connected to property
 
 LotArea: Lot size in square feet
 
-Street: Type of road access to property
+Street: Type of road access to property (drop, too many empty slots)
 
        Grvl	Gravel	
        Pave	Paved
        	
-Alley: Type of alley access to property
+Alley: Type of alley access to property (drop, too many empty slots)
 
        Grvl	Gravel
        Pave	Paved
        NA 	No alley access
 		
-LotShape: General shape of property
+LotShape: General shape of property (useful)
 
        Reg	Regular	
        IR1	Slightly irregular
        IR2	Moderately Irregular
        IR3	Irregular
        
-LandContour: Flatness of the property
+LandContour: Flatness of the property (Skewed 0.89)
 
        Lvl	Near Flat/Level	
        Bnk	Banked - Quick and significant rise from street grade to building
        HLS	Hillside - Significant slope from side to side
        Low	Depression
 		
-Utilities: Type of utilities available
+Utilities: Type of utilities available (totally skewed, useless)
 		
        AllPub	All public Utilities (E,G,W,& S)	
        NoSewr	Electricity, Gas, and Water (Septic Tank)
        NoSeWa	Electricity and Gas Only
        ELO	Electricity only	
 	
-LotConfig: Lot configuration
+LotConfig: Lot configuration (too flat)
 
        Inside	Inside lot
        Corner	Corner lot
@@ -72,7 +72,7 @@ LotConfig: Lot configuration
        FR2	Frontage on 2 sides of property
        FR3	Frontage on 3 sides of property
 	
-LandSlope: Slope of property
+LandSlope: Slope of property (Skewed, 0.94)
 		
        Gtl	Gentle slope
        Mod	Moderate Slope	
@@ -401,7 +401,7 @@ Functional: Home functionality (Assume typical unless deductions are warranted)
 		
 Fireplaces: Number of fireplaces
 
-FireplaceQu: Fireplace quality
+FireplaceQu: Fireplace quality (drop, too many empty slots)
 
        Ex	Excellent - Exceptional Masonry Fireplace
        Gd	Good - Masonry Fireplace in main level
@@ -469,7 +469,7 @@ ScreenPorch: Screen porch area in square feet
 
 PoolArea: Pool area in square feet
 
-PoolQC: Pool quality
+PoolQC: Pool quality (drop, too many empty slots)
 		
        Ex	Excellent
        Gd	Good
@@ -477,7 +477,7 @@ PoolQC: Pool quality
        Fa	Fair
        NA	No Pool
 		
-Fence: Fence quality
+Fence: Fence quality (drop, too many empty slots)
 		
        GdPrv	Good Privacy
        MnPrv	Minimum Privacy
@@ -485,7 +485,7 @@ Fence: Fence quality
        MnWw	Minimum Wood/Wire
        NA	No Fence
 	
-MiscFeature: Miscellaneous feature not covered in other categories
+MiscFeature: Miscellaneous feature not covered in other categories (drop, too many empty slots)
 		
        Elev	Elevator
        Gar2	2nd Garage (if not described in garage section)
