@@ -10,6 +10,7 @@ from time import time
 from PIL  import Image
 from io   import BytesIO
 
+#import datetime
 import os
 import cv2
 import math
@@ -382,7 +383,7 @@ class AutoDrive(object):
     MAX_THROTTLE_HISTORY        = 3
     DEFAULT_SPEED               = 0.5
 
-    debug = True
+    debug = False
 
     def __init__(self, car, record_folder = None):
         self._record_folder    = record_folder
@@ -440,14 +441,14 @@ class Car(object):
         #normalize the units of all parameters
         last_steering_angle = np.pi/2 - float(dashboard["steering_angle"]) / 180.0 * np.pi
         throttle            = float(dashboard["throttle"])
+        brake               = float(dashboard["brakes"])
         speed               = float(dashboard["speed"])
         img                 = ImageProcessor.bgr2rgb(np.asarray(Image.open(BytesIO(base64.b64decode(dashboard["image"])))))
-
-        total_time = dashboard["time"].split(":") if "time" in dashboard else []
-        seconds    = float(total_time.pop()) if len(total_time) > 0 else 0.0
-        minutes    = int(total_time.pop())   if len(total_time) > 0 else 0
-        hours      = int(total_time.pop())   if len(total_time) > 0 else 0
-        elapsed    = ((hours * 60) + minutes) * 60 + seconds
+        #del dashboard["image"]
+        #print datetime.now();
+        #print dashboard;
+        total_time = dashboard["time"]
+        elapsed    = total_time;
 
         info = {
             "lap"    : int(dashboard["lap"]) if "lap" in dashboard else 0,
