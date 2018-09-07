@@ -383,7 +383,7 @@ class AutoDrive(object):
     MAX_THROTTLE_HISTORY        = 3
     DEFAULT_SPEED               = 0.5
 
-    debug = False
+    debug = True
 
     def __init__(self, car, record_folder = None):
         self._record_folder    = record_folder
@@ -406,9 +406,9 @@ class AutoDrive(object):
         if self.debug:
             ImageProcessor.show_image(src_img, "source")
             ImageProcessor.show_image(track_img, "track")
-            logit("steering PID: %0.2f (%0.2f) => %0.2f (%0.2f)" % (current_angle, ImageProcessor.rad2deg(current_angle), steering_angle, ImageProcessor.rad2deg(steering_angle)))
-            logit("throttle PID: %0.4f => %0.4f" % (speed, throttle))
-            logit("info: %s" % repr(info))
+            #logit("steering PID: %0.2f (%0.2f) => %0.2f (%0.2f)" % (current_angle, ImageProcessor.rad2deg(current_angle), steering_angle, ImageProcessor.rad2deg(steering_angle)))
+            #logit("throttle PID: %0.4f => %0.4f" % (speed, throttle))
+            #logit("info: %s" % repr(info))
 
         if self._record_folder:
             suffix = "-deg%0.3f" % (ImageProcessor.rad2deg(steering_angle))
@@ -444,11 +444,14 @@ class Car(object):
         brake               = float(dashboard["brakes"])
         speed               = float(dashboard["speed"])
         img                 = ImageProcessor.bgr2rgb(np.asarray(Image.open(BytesIO(base64.b64decode(dashboard["image"])))))
-        #del dashboard["image"]
-        #print datetime.now();
-        #print dashboard;
-        total_time = dashboard["time"]
-        elapsed    = total_time;
+        del dashboard["image"]
+        print datetime.now(), dashboard;
+        total_time = float(dashboard["time"])
+        elapsed    = total_time
+
+        if elapsed >600:
+            print "elapsed: " +str(elapsed)
+            send_restart()
 
         info = {
             "lap"    : int(dashboard["lap"]) if "lap" in dashboard else 0,
@@ -497,6 +500,11 @@ if __name__ == "__main__":
                 'steering_angle': str(steering_angle),
                 'throttle': str(throttle)
             },
+            skip_sid=True)
+    def send_restart():
+        sio.emit(
+            "restart",
+            data={},
             skip_sid=True)
 
     car = Car(control_function = send_control)
