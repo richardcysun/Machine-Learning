@@ -7,6 +7,18 @@ def isAnyObstacleIntheView(nPixels):
     else:
         return True
     
+def isAnyWallInFrontView(nPixels):
+    if nPixels <= 5000:
+        return False
+    else:
+        return True
+
+def isAnyWallOnLeftRightView(nPixels):
+    if nPixels <= 3300:
+        return False
+    else:
+        return True
+        
 def detectObstacle(srcImg):
     imgbiFilter = cv2.bilateralFilter(srcImg,3,255,255)
     #find grey colors
@@ -15,55 +27,91 @@ def detectObstacle(srcImg):
 
     imagePicked = cv2.inRange(imgbiFilter, lower_color , upper_color)
 
-    cntPickedNonZero = cv2.countNonZero(imagePicked)
-    print('ImgPicked non-zero: ' + str(cntPickedNonZero))
-    cv2.imshow('Image Picked', imagePicked)
+    #cntPickedNonZero = cv2.countNonZero(imagePicked)
+    #print('ImgPicked non-zero: ' + str(cntPickedNonZero))
+    cv2.imshow('Obj Picked', imagePicked)
 
     imagePickedLeft = imagePicked[0:240, 0:80]
-    cv2.imshow('Left',imagePickedLeft)
+    #cv2.imshow('Obj Left',imagePickedLeft)
     cntPickedLeftNonZero = cv2.countNonZero(imagePickedLeft)
     bObjOnLeft = isAnyObstacleIntheView(cntPickedLeftNonZero)
-    print('Left non-zero: ' + str(cntPickedLeftNonZero))
+    print('Obj Left: ' + str(cntPickedLeftNonZero))
     
     imagePickedCentral = imagePicked[0:240, 80:240]
-    cv2.imshow('Central',imagePickedCentral)
+    #cv2.imshow('Obj Central',imagePickedCentral)
     cntPickedCentralNonZero = cv2.countNonZero(imagePickedCentral)
     bObsAhead = isAnyObstacleIntheView(cntPickedCentralNonZero)
-    print('Central non-zero: ' + str(cntPickedCentralNonZero))
+    print('Obj Central: ' + str(cntPickedCentralNonZero))
 
     imagePickedRight = imagePicked[0:240, 240:320]
-    cv2.imshow('Right',imagePickedRight)
+    #cv2.imshow('Obj Right',imagePickedRight)
     cntPickedRightNonZero = cv2.countNonZero(imagePickedRight)
     bObjOnRight = isAnyObstacleIntheView(cntPickedRightNonZero)
-    print('Right non-zero: ' + str(cntPickedRightNonZero))
+    print('Obj Right: ' + str(cntPickedRightNonZero))
     
-    nProximity = 0
-    return bObsAhead, bObjOnLeft, bObjOnRight, nProximity
+    return bObsAhead, bObjOnLeft, bObjOnRight
+
+def detectWall(srcImg):
+    imgbiFilter = cv2.bilateralFilter(orgimg,3,255,255)
+    #Pick nearly black
+    lower_color = np.array([0, 0, 0])
+    upper_color = np.array([20, 20, 20])
+
+    imagePicked = cv2.inRange(imgbiFilter, lower_color , upper_color)
+    cv2.imshow('Wall',imagePicked)
+    
+    imagePickedLeft = imagePicked[0:240, 0:80]
+    #cv2.imshow('Wall Left',imagePickedLeft)
+    cntPickedLeftNonZero = cv2.countNonZero(imagePickedLeft)
+    bWallOnLeft = isAnyWallOnLeftRightView(cntPickedLeftNonZero)
+    print('Wall Left: ' + str(cntPickedLeftNonZero))
+
+    imagePickedCentral = imagePicked[0:240, 80:240]
+    #cv2.imshow('Wall Central',imagePickedCentral)
+    cntPickedCentralNonZero = cv2.countNonZero(imagePickedCentral)
+    bWallAhead = isAnyWallInFrontView(cntPickedCentralNonZero)
+    print('Wall Central: ' + str(cntPickedCentralNonZero))
+
+    imagePickedRight = imagePicked[0:240, 240:320]
+    #cv2.imshow('Wall Right',imagePickedRight)
+    cntPickedRightNonZero = cv2.countNonZero(imagePickedRight)
+    bWallOnRight = isAnyWallOnLeftRightView(cntPickedRightNonZero)
+    print('Wall Right: ' + str(cntPickedRightNonZero))
+    
+    return bWallAhead, bWallOnLeft, bWallOnRight
 
 #Car is approaching
-print('Car is approaching')
-orgimg = cv2.imread('eagle_2018_09_06_15_46_19_891.jpg',-1)
+#orgimg = cv2.imread('eagle_2018_09_06_15_46_19_891.jpg',-1)
 
 #Car is very close
-#print('Car is quite close')    
 #orgimg = cv2.imread('eagle_2018_09_06_15_46_20_321.jpg',-1)
 
-#No cars ahead
-#print('No cars ahead')    
+#No cars ahead, Wall and Signs
 #orgimg = cv2.imread('eagle_2018_09_06_15_46_07_743.jpg',-1)
 
 #Car around the corner
-#print('Car around the corner')    
 #orgimg = cv2.imread('eagle_2018_09_06_15_46_09_867.jpg',-1)
 
 #Hit front car
-#print('Hit front car')        
 #orgimg = cv2.imread('eagle_2018_09_06_15_46_20_655.jpg',-1)
 
-bObsAhead, bObjOnLeft, bObjOnRight, nProximity = detectObstacle(orgimg)
-print('Car in front of us: ' + str(bObsAhead))
+#Wll and Car
+#orgimg = cv2.imread('eagle_2018_09_06_15_46_19_891.jpg',-1)
+
+#Big Wall
+#orgimg = cv2.imread('eagle_2018_09_06_15_46_10_902.jpg',-1)
+
+orgimg = cv2.imread('eagle_2018_09_06_15_46_19_060.jpg',-1)
+
+bObsAhead, bObjOnLeft, bObjOnRight = detectObstacle(orgimg)
+print('Car Ahead: ' + str(bObsAhead))
 print('Car on the left: ' + str(bObjOnLeft))
 print('Car on the right: ' + str(bObjOnRight))
+
+bWallAhead, bWallOnLeft, bWallOnRight = detectWall(orgimg)
+print('Wall Ahead: ' + str(bWallAhead))
+print('Wall on the left: ' + str(bWallOnLeft))
+print('Wall on the right: ' + str(bWallOnRight))
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()
