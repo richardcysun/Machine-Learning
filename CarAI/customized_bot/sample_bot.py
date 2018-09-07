@@ -17,7 +17,7 @@ import math
 import numpy as np
 import base64
 import logging
-
+import detectObsWall
 
 def logit(msg):
     print("%s" % msg)
@@ -333,7 +333,7 @@ class ImageProcessor(object):
             x = image_width / 2 + int(r * math.cos(steering_angle))
             y = image_height    - int(r * math.sin(steering_angle))
             cv2.line(img, (image_width / 2, image_height), (x, y), (255, 0, 255), 2)
-            logit("line angle: %0.2f, steering angle: %0.2f, last steering angle: %0.2f" % (ImageProcessor.rad2deg(best_thetaA), ImageProcessor.rad2deg(np.pi/2-steering_angle), ImageProcessor.rad2deg(np.pi/2-last_steering_angle)))
+            logit("line angle: %0.2f, steering angle: %0.2f, last steering angle: %0.2f" % (ImageProcessor.rad2deg(best_thetaA), ImageProcessor.rad2deg(np.pi/2-steering_angle), #ImageProcessor.rad2deg(np.pi/2-last_steering_angle)))
 
         return (np.pi/2 - steering_angle)
 
@@ -399,6 +399,14 @@ class AutoDrive(object):
     def on_dashboard(self, src_img, last_steering_angle, speed, throttle, info):
         track_img     = ImageProcessor.preprocess(src_img)
         current_angle = ImageProcessor.find_steering_angle_by_color(track_img, last_steering_angle, debug = self.debug)
+        bObsAhead, bObjOnLeft, bObjOnRight = detectObsWall.detectObstacle(src_img)
+        bWallAhead, bWallOnLeft, bWallOnRight = detectObsWall.detectWall(src_img)
+        
+        if bObsAhead == True or bObjOnLeft == True or bObjOnRight == True:
+            detectObsWall.rsWriteLog("@@@ Obstacle ahead: %s, left: %s right: %s" % (str(bObsAhead), str(bObjOnLeft), str(bObjOnRight)))        
+        if bWallAhead == True or bWallOnLeft == True or bWallOnRight == True:
+            detectObsWall.rsWriteLog("@@@ Wall ahead: %s, left: %s right: %s" % (str(bWallAhead), str(bWallOnLeft), str(bWallOnRight)))
+        
         #current_angle = ImageProcessor.find_steering_angle_by_line(track_img, last_steering_angle, debug = self.debug)
         steering_angle = self._steering_pid.update(-current_angle)
         throttle       = self._throttle_pid.update(speed)
