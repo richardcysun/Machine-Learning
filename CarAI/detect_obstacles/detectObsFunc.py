@@ -1,8 +1,14 @@
 import cv2
 import numpy as np
 
-def isAnyObstacleIntheView(nPixels):
-    if nPixels <= 175:
+def isAnyObstacleInFrontView(nPixels):
+    if nPixels <= 450:
+        return False
+    else:
+        return True
+
+def isAnyObstacleOnLeftRightView(nPixels):
+    if nPixels <= 220:
         return False
     else:
         return True
@@ -34,30 +40,32 @@ def detectObstacle(srcImg):
     imagePickedLeft = imagePicked[0:240, 0:80]
     #cv2.imshow('Obj Left',imagePickedLeft)
     cntPickedLeftNonZero = cv2.countNonZero(imagePickedLeft)
-    bObjOnLeft = isAnyObstacleIntheView(cntPickedLeftNonZero)
+    bObjOnLeft = isAnyObstacleOnLeftRightView(cntPickedLeftNonZero)
     print('Obj Left: ' + str(cntPickedLeftNonZero))
     
     imagePickedCentral = imagePicked[0:240, 80:240]
     #cv2.imshow('Obj Central',imagePickedCentral)
     cntPickedCentralNonZero = cv2.countNonZero(imagePickedCentral)
-    bObsAhead = isAnyObstacleIntheView(cntPickedCentralNonZero)
+    bObsAhead = isAnyObstacleInFrontView(cntPickedCentralNonZero)
     print('Obj Central: ' + str(cntPickedCentralNonZero))
 
     imagePickedRight = imagePicked[0:240, 240:320]
     #cv2.imshow('Obj Right',imagePickedRight)
     cntPickedRightNonZero = cv2.countNonZero(imagePickedRight)
-    bObjOnRight = isAnyObstacleIntheView(cntPickedRightNonZero)
+    bObjOnRight = isAnyObstacleOnLeftRightView(cntPickedRightNonZero)
     print('Obj Right: ' + str(cntPickedRightNonZero))
     
     return bObsAhead, bObjOnLeft, bObjOnRight
 
 def detectWall(srcImg):
-    imgbiFilter = cv2.bilateralFilter(orgimg,3,255,255)
+    imgbiFilter = cv2.bilateralFilter(srcImg,3,255,255)
     #Pick nearly black
     lower_color = np.array([0, 0, 0])
     upper_color = np.array([20, 20, 20])
 
     imagePicked = cv2.inRange(imgbiFilter, lower_color , upper_color)
+    #black the top of image to ignore sign bar
+    imagePicked[0:70, 0:320] = 0    
     cv2.imshow('Wall',imagePicked)
     
     imagePickedLeft = imagePicked[0:240, 0:80]
@@ -101,7 +109,15 @@ def detectWall(srcImg):
 #Big Wall
 #orgimg = cv2.imread('eagle_2018_09_06_15_46_10_902.jpg',-1)
 
-orgimg = cv2.imread('eagle_2018_09_06_15_46_19_060.jpg',-1)
+#Wll and Car
+#orgimg = cv2.imread('eagle_2018_09_06_15_46_19_060.jpg',-1)
+
+#Wrong judgment due to pixel thread 175 (change to 200)
+orgimg = cv2.imread('obs_1011.jpg',-1)
+#orgimg = cv2.imread('obs_1002.jpg',-1)
+
+#Wrong judgment due to sign bar above the road (change to 200)
+#orgimg = cv2.imread('wall_2004.jpg',-1)
 
 bObsAhead, bObjOnLeft, bObjOnRight = detectObstacle(orgimg)
 print('Car Ahead: ' + str(bObsAhead))
