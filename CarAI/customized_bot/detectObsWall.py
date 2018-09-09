@@ -9,13 +9,13 @@ def rsWriteLog(msg):
         log_file.write(msg + '\n')
         
 def isAnyObstacleInFrontView(nPixels):
-    if nPixels <= 450:
+    if nPixels <= 550:
         return False
     else:
         return True
 
 def isAnyObstacleOnLeftRightView(nPixels):
-    if nPixels <= 220:
+    if nPixels <= 260:
         return False
     else:
         return True

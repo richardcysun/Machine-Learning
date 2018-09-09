@@ -2,13 +2,13 @@ import cv2
 import numpy as np
 
 def isAnyObstacleInFrontView(nPixels):
-    if nPixels <= 450:
+    if nPixels <= 550:
         return False
     else:
         return True
 
 def isAnyObstacleOnLeftRightView(nPixels):
-    if nPixels <= 220:
+    if nPixels <= 260:
         return False
     else:
         return True
@@ -113,7 +113,7 @@ def detectWall(srcImg):
 #orgimg = cv2.imread('eagle_2018_09_06_15_46_19_060.jpg',-1)
 
 #Wrong judgment due to pixel thread 175 (change to 200)
-orgimg = cv2.imread('obs_1011.jpg',-1)
+orgimg = cv2.imread('1003.jpg',-1)
 #orgimg = cv2.imread('obs_1002.jpg',-1)
 
 #Wrong judgment due to sign bar above the road (change to 200)
