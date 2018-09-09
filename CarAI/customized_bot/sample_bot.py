@@ -333,7 +333,7 @@ class ImageProcessor(object):
             x = image_width / 2 + int(r * math.cos(steering_angle))
             y = image_height    - int(r * math.sin(steering_angle))
             cv2.line(img, (image_width / 2, image_height), (x, y), (255, 0, 255), 2)
-            logit("line angle: %0.2f, steering angle: %0.2f, last steering angle: %0.2f" % (ImageProcessor.rad2deg(best_thetaA), ImageProcessor.rad2deg(np.pi/2-steering_angle), #ImageProcessor.rad2deg(np.pi/2-last_steering_angle)))
+            logit("line angle: %0.2f, steering angle: %0.2f, last steering angle: %0.2f" % (ImageProcessor.rad2deg(best_thetaA), ImageProcessor.rad2deg(np.pi/2-steering_angle), ImageProcessor.rad2deg(np.pi/2-last_steering_angle)))
 
         return (np.pi/2 - steering_angle)
 
