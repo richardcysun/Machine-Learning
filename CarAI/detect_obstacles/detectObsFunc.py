@@ -35,7 +35,7 @@ def detectObstacle(srcImg):
 
     #cntPickedNonZero = cv2.countNonZero(imagePicked)
     #print('ImgPicked non-zero: ' + str(cntPickedNonZero))
-    cv2.imshow('Obj Picked', imagePicked)
+    cv2.imshow('Obstacle', imagePicked)
 
     imagePickedLeft = imagePicked[0:240, 0:80]
     #cv2.imshow('Obj Left',imagePickedLeft)
@@ -57,17 +57,24 @@ def detectObstacle(srcImg):
     
     return bObsAhead, bObjOnLeft, bObjOnRight
 
-def detectWall(srcImg):
+def detectWall(srcImg, tgtColor):
     imgbiFilter = cv2.bilateralFilter(srcImg,3,255,255)
     #Pick nearly black
     lower_color = np.array([0, 0, 0])
     upper_color = np.array([20, 20, 20])
 
+    if tgtColor == 1:
+            lower_color = np.array([0, 165, 165])
+            upper_color = np.array([15, 177, 178])
+            
     imagePicked = cv2.inRange(imgbiFilter, lower_color , upper_color)
     #black the top of image to ignore sign bar
     imagePicked[0:70, 0:320] = 0    
-    cv2.imshow('Wall',imagePicked)
-    
+    if tgtColor == 0:
+        cv2.imshow('Black Wall',imagePicked)
+    elif tgtColor == 1:
+        cv2.imshow('Yellow-Green Wall',imagePicked)
+        
     imagePickedLeft = imagePicked[0:240, 0:80]
     #cv2.imshow('Wall Left',imagePickedLeft)
     cntPickedLeftNonZero = cv2.countNonZero(imagePickedLeft)
@@ -113,21 +120,28 @@ def detectWall(srcImg):
 #orgimg = cv2.imread('eagle_2018_09_06_15_46_19_060.jpg',-1)
 
 #Wrong judgment due to pixel thread 175 (change to 200)
-orgimg = cv2.imread('1003.jpg',-1)
 #orgimg = cv2.imread('obs_1002.jpg',-1)
 
 #Wrong judgment due to sign bar above the road (change to 200)
 #orgimg = cv2.imread('wall_2004.jpg',-1)
+
+#Detect yellow-green wall
+orgimg = cv2.imread('eagle_2018_09_11_23_15_53_994.jpg',-1)
 
 bObsAhead, bObjOnLeft, bObjOnRight = detectObstacle(orgimg)
 print('Car Ahead: ' + str(bObsAhead))
 print('Car on the left: ' + str(bObjOnLeft))
 print('Car on the right: ' + str(bObjOnRight))
 
-bWallAhead, bWallOnLeft, bWallOnRight = detectWall(orgimg)
-print('Wall Ahead: ' + str(bWallAhead))
-print('Wall on the left: ' + str(bWallOnLeft))
-print('Wall on the right: ' + str(bWallOnRight))
+bBkWallAhead, bBkWallOnLeft, bBkWallOnRight = detectWall(orgimg, 0)
+print('Black Wall Ahead: ' + str(bBkWallAhead))
+print('Black Wall on the left: ' + str(bBkWallOnLeft))
+print('Black Wall on the right: ' + str(bBkWallOnRight))
+
+bYgWallAhead, bYgWallOnLeft, bYgWallOnRight = detectWall(orgimg, 1)
+print('Yellow-Green Wall Ahead: ' + str(bYgWallAhead))
+print('Yellow-Green on the left: ' + str(bYgWallOnLeft))
+print('Yellow-Green on the right: ' + str(bYgWallOnRight))
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()
