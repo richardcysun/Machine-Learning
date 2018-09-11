@@ -5,10 +5,10 @@ obs_img_serial_number = 1000
 wall_img_serial_number = 2000
 
 def rsWriteLog(msg):
-    '''
+'''
     with open('detectObjWall.log', 'a') as log_file:
         log_file.write(msg + '\n')
-    '''
+'''    
     dummy = 0
     
 def isAnyObstacleInFrontView(nPixels):
@@ -66,13 +66,17 @@ def detectObstacle(srcImg):
 
     return bObsAhead, bObjOnLeft, bObjOnRight
 
-def detectWall(srcImg):
+def detectWall(srcImg, tgtColor):
     global wall_img_serial_number
     imgbiFilter = cv2.bilateralFilter(srcImg,3,255,255)
     #Pick nearly black
     lower_color = np.array([0, 0, 0])
     upper_color = np.array([20, 20, 20])
 
+    if tgtColor == 1:
+        lower_color = np.array([0, 165, 165])
+        upper_color = np.array([15, 177, 178])
+        
     imagePicked = cv2.inRange(imgbiFilter, lower_color , upper_color)
     #black the top of image to ignore sign bar
     imagePicked[0:70, 0:320] = 0
@@ -99,18 +103,18 @@ def detectWall(srcImg):
      
     return bWallAhead, bWallOnLeft, bWallOnRight
 
-def steeringAdjustment(bObsAhead, bObjOnLeft, bObjOnRight, bWallAhead, bWallOnLeft, bWallOnRight):
+def steeringAdjustment(bObsAhead, bObjOnLeft, bObjOnRight, bBkWallAhead, bBkWallOnLeft, bBkWallOnRight, bYgWallAhead, bYgWallOnLeft, bYgWallOnRight):
     #if there is nothing ahead
     nRet = 0
-    if bObsAhead == False and bWallAhead == False:
+    if bObsAhead == False and bBkWallAhead == False and bYgWallAhead == False:
         nRet = 0
     
     #Something ahead, can we steer right?
-    elif bObjOnRight == False and bWallOnRight == False:
+    elif bObjOnRight == False and bBkWallOnRight == False and bYgWallOnRight == False:
         nRet = 1
         
     #Something ahead and on the right, can we steer left?
-    elif bObjOnRight == False and bWallOnRight == False:
+    elif bObjOnLeft == False and bBkWallOnLeft == False and bYgWallOnLeft == False:
         nRet = -1
 
     #We can't turn right and left, do nothing

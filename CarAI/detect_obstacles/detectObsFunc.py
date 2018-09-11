@@ -64,8 +64,8 @@ def detectWall(srcImg, tgtColor):
     upper_color = np.array([20, 20, 20])
 
     if tgtColor == 1:
-            lower_color = np.array([0, 165, 165])
-            upper_color = np.array([15, 177, 178])
+        lower_color = np.array([0, 165, 165])
+        upper_color = np.array([15, 177, 178])
             
     imagePicked = cv2.inRange(imgbiFilter, lower_color , upper_color)
     #black the top of image to ignore sign bar

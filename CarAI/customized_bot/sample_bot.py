@@ -400,15 +400,18 @@ class AutoDrive(object):
         track_img     = ImageProcessor.preprocess(src_img)
         current_angle = ImageProcessor.find_steering_angle_by_color(track_img, last_steering_angle, debug = self.debug)
         bObsAhead, bObjOnLeft, bObjOnRight = detectObsWall.detectObstacle(src_img)
-        bWallAhead, bWallOnLeft, bWallOnRight = detectObsWall.detectWall(src_img)
+        bBkWallAhead, bBkWallOnLeft, bBkWallOnRight = detectObsWall.detectWall(src_img, 0)
+        bYgWallAhead, bYgWallOnLeft, bYgWallOnRight = detectObsWall.detectWall(src_img, 1)
         
         if bObsAhead == True or bObjOnLeft == True or bObjOnRight == True:
             detectObsWall.rsWriteLog("Obstacle ahead: %s, left: %s right: %s" % (str(bObsAhead), str(bObjOnLeft), str(bObjOnRight)))        
-        if bWallAhead == True or bWallOnLeft == True or bWallOnRight == True:
-            detectObsWall.rsWriteLog("Wall ahead: %s, left: %s right: %s" % (str(bWallAhead), str(bWallOnLeft), str(bWallOnRight)))
+        if bBkWallAhead == True or bBkWallOnLeft == True or bBkWallOnRight == True:
+            detectObsWall.rsWriteLog("Black Wall ahead: %s, left: %s right: %s" % (str(bBkWallAhead), str(bBkWallOnLeft), str(bBkWallOnRight)))
+        if bYgWallAhead == True or bYgWallOnLeft == True or bYgWallOnRight == True:
+            detectObsWall.rsWriteLog("Yellow-Green Wall ahead: %s, left: %s right: %s" % (str(bYgWallAhead), str(bYgWallOnLeft), str(bYgWallOnRight)))            
         
-        steeringAdjust = detectObsWall.steeringAdjustment(bObsAhead, bObjOnLeft, bObjOnRight, bWallAhead, bWallOnLeft, bWallOnRight)
-        if steeringAdjust > 0:
+        steeringAdjust = detectObsWall.steeringAdjustment(bObsAhead, bObjOnLeft, bObjOnRight, bBkWallAhead, bBkWallOnLeft, bBkWallOnRight, bYgWallAhead, bYgWallOnLeft, bYgWallOnRight)
+        if steeringAdjust != 0:
             detectObsWall.rsWriteLog("Adjust steering: %s" % (str(steeringAdjust)))
         #current_angle = ImageProcessor.find_steering_angle_by_line(track_img, last_steering_angle, debug = self.debug)
         steering_angle = self._steering_pid.update(-current_angle)
@@ -427,7 +430,8 @@ class AutoDrive(object):
             ImageProcessor.save_image(self._record_folder, track_img, prefix = "trk", suffix = suffix)
 
         #smooth the control signals
-        steering_angle = steering_angle + steeringAdjust
+        steering_angle = steering_angle + (steeringAdjust * 0.4)
+        detectObsWall.rsWriteLog("Final steering: %s" % (str(steering_angle)))
         self._steering_history.append(steering_angle)
         self._steering_history = self._steering_history[-self.MAX_STEERING_HISTORY:]
         self._throttle_history.append(throttle)
