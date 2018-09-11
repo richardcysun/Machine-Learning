@@ -5,9 +5,12 @@ obs_img_serial_number = 1000
 wall_img_serial_number = 2000
 
 def rsWriteLog(msg):
+    '''
     with open('detectObjWall.log', 'a') as log_file:
         log_file.write(msg + '\n')
-        
+    '''
+    dummy = 0
+    
 def isAnyObstacleInFrontView(nPixels):
     if nPixels <= 550:
         return False
@@ -55,11 +58,12 @@ def detectObstacle(srcImg):
     cntPickedRightNonZero = cv2.countNonZero(imagePickedRight)
     bObjOnRight = isAnyObstacleOnLeftRightView(cntPickedRightNonZero)
     #print('Obj Right: ' + str(cntPickedRightNonZero))
-    
-    if bObsAhead == True or bObjOnLeft == True or bObjOnRight == True:
-        out_img_filename = str(obs_img_serial_number) + '.jpg'
+
+    if bObsAhead == True:
+        out_img_filename = 'Obs_' + str(obs_img_serial_number) + '.jpg'
         obs_img_serial_number = obs_img_serial_number + 1
-        cv2.imwrite(out_img_filename, srcImg)
+        #cv2.imwrite(out_img_filename, srcImg)
+
     return bObsAhead, bObjOnLeft, bObjOnRight
 
 def detectWall(srcImg):
@@ -87,10 +91,30 @@ def detectWall(srcImg):
     cntPickedRightNonZero = cv2.countNonZero(imagePickedRight)
     bWallOnRight = isAnyWallOnLeftRightView(cntPickedRightNonZero)
     #print('Wall Right: ' + str(cntPickedRightNonZero))
-    
-    if bWallAhead == True or bWallOnLeft == True or bWallOnRight == True:
-        out_img_filename = str(wall_img_serial_number) + '.jpg'
+       
+    if bWallAhead == True:
+        out_img_filename = 'Wall_' + str(wall_img_serial_number) + '.jpg'
         wall_img_serial_number = wall_img_serial_number + 1
-        cv2.imwrite(out_img_filename, srcImg)
-        
+        #cv2.imwrite(out_img_filename, srcImg)
+     
     return bWallAhead, bWallOnLeft, bWallOnRight
+
+def steeringAdjustment(bObsAhead, bObjOnLeft, bObjOnRight, bWallAhead, bWallOnLeft, bWallOnRight):
+    #if there is nothing ahead
+    nRet = 0
+    if bObsAhead == False and bWallAhead == False:
+        nRet = 0
+    
+    #Something ahead, can we steer right?
+    elif bObjOnRight == False and bWallOnRight == False:
+        nRet = 1
+        
+    #Something ahead and on the right, can we steer left?
+    elif bObjOnRight == False and bWallOnRight == False:
+        nRet = -1
+
+    #We can't turn right and left, do nothing
+    else:
+        nRet = 0
+
+    return nRet
