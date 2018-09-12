@@ -111,9 +111,9 @@ class ImageProcessor(object):
         if scale and scale != 1.0:
             img = cv2.resize(img, newsize, interpolation=cv2.INTER_CUBIC) 
 
-        cv2.namedWindow(name, cv2.WINDOW_AUTOSIZE)
-        cv2.imshow(name, img)
-        cv2.waitKey(1)
+        #cv2.namedWindow(name, cv2.WINDOW_AUTOSIZE)
+        #cv2.imshow(name, img)
+        #cv2.waitKey(1)
 
 
     @staticmethod
@@ -170,7 +170,7 @@ class ImageProcessor(object):
 
     @staticmethod
     def _crop_image(img):
-        bottom_half_ratios = (0.55, 1.0)
+        bottom_half_ratios = (0.7, 1.0)
         bottom_half_slice  = slice(*(int(x * img.shape[0]) for x in bottom_half_ratios))
         bottom_half        = img[bottom_half_slice, :, :]
         return bottom_half
@@ -344,7 +344,7 @@ class ImageProcessor(object):
         image_height = img.shape[0]
         image_width  = img.shape[1]
         camera_x     = image_width / 2
-        image_sample = slice(0, int(image_height * 0.2))
+        image_sample = slice(int(image_height * 0.2), int(image_height))
         sr, sg, sb   = r[image_sample, :], g[image_sample, :], b[image_sample, :]
         track_list   = [sr, sg, sb]
         tracks       = map(lambda x: len(x[x > 20]), [sr, sg, sb])
@@ -365,7 +365,7 @@ class ImageProcessor(object):
             x = image_width / 2 + int(r * math.cos(steering_angle))
             y = image_height    - int(r * math.sin(steering_angle))
             cv2.line(img, (image_width / 2, image_height), (x, y), (255, 0, 255), 2)
-            logit("steering angle: %0.2f, last steering angle: %0.2f" % (ImageProcessor.rad2deg(steering_angle), ImageProcessor.rad2deg(np.pi/2-last_steering_angle)))
+            #logit("steering angle: %0.2f, last steering angle: %0.2f" % (ImageProcessor.rad2deg(steering_angle), ImageProcessor.rad2deg(np.pi/2-last_steering_angle)))
 
         return (np.pi/2 - steering_angle) * 2.0
 
@@ -381,7 +381,7 @@ class AutoDrive(object):
     THROTTLE_PID_max_integral   = 0.5
     MAX_STEERING_HISTORY        = 3
     MAX_THROTTLE_HISTORY        = 3
-    DEFAULT_SPEED               = 0.5
+    DEFAULT_SPEED               = 0.65
 
     debug = True
 
@@ -421,7 +421,8 @@ class AutoDrive(object):
         self._throttle_history.append(throttle)
         self._throttle_history = self._throttle_history[-self.MAX_THROTTLE_HISTORY:]
 
-        self._car.control(sum(self._steering_history)/self.MAX_STEERING_HISTORY, sum(self._throttle_history)/self.MAX_THROTTLE_HISTORY)
+        #self._car.control(steering_angle, throttle)
+        self._car.control(sum(self._steering_history[-15:])/self.MAX_STEERING_HISTORY, sum(self._throttle_history[-15:])/self.MAX_THROTTLE_HISTORY)
 
 
 class Car(object):
@@ -448,10 +449,6 @@ class Car(object):
         print datetime.now(), dashboard;
         total_time = float(dashboard["time"])
         elapsed    = total_time
-
-        if elapsed >600:
-            print "elapsed: " +str(elapsed)
-            send_restart()
 
         info = {
             "lap"    : int(dashboard["lap"]) if "lap" in dashboard else 0,
@@ -493,7 +490,7 @@ if __name__ == "__main__":
         logit("Start recording images to %s..." % args.record)
 
     sio = socketio.Server()
-    def send_control(steering_angle, throttle):
+    def send_control(steering_angle, throttle):    	  
         sio.emit(
             "steer",
             data={
@@ -501,6 +498,8 @@ if __name__ == "__main__":
                 'throttle': str(throttle)
             },
             skip_sid=True)
+        #print "emit control " +str(datetime.now())
+                   
     def send_restart():
         sio.emit(
             "restart",
@@ -519,6 +518,7 @@ if __name__ == "__main__":
 
     @sio.on('connect')
     def connect(sid, environ):
+        send_restart()
         car.control(0, 0)
 
     app = socketio.Middleware(sio, Flask(__name__))
